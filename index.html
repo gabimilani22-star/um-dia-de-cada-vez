@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="pt-BR">
+<head><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#5f8068">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#edf5ef">
+<title>Um Dia de Cada Vez — V8</title>
+<style>
+:root{--green:#587a61;--green2:#dcebdd;--ink:#26332b;--muted:#748078;--bg:#f3f6f3;--card:#fff;--line:#e0e8e1}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+button,input,select{font:inherit}button{cursor:pointer}.app{max-width:560px;margin:auto;min-height:100vh;padding-bottom:92px}
+header{padding:27px 20px 21px;background:linear-gradient(145deg,#e4f0e5,#f9fbf9)}
+.brand{font-weight:900;letter-spacing:1.4px;color:#55715c;font-size:12px}.brand span{font-size:20px;margin-right:5px}
+header h1{font-size:30px;line-height:1.08;margin:13px 0 6px}.tagline{font-size:16px;color:var(--muted);line-height:1.4}
+.topnav{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:11px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:8}
+.topnav button{border:0;background:#f2f6f2;border-radius:15px;padding:10px 3px;color:#6e7971;font-weight:800;font-size:11px}.topnav .active{background:var(--green2);color:#38523f}
+.page{display:none;padding:15px}.page.active{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:17px;margin-bottom:13px;box-shadow:0 7px 22px rgba(31,48,37,.05)}
+.card h2{font-size:21px;margin:0 0 5px}.muted{color:var(--muted);font-size:13px;line-height:1.5}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}.stat{background:#f6f9f6;border-radius:17px;padding:14px;min-height:94px}.stat b{display:block;font-size:22px;margin-top:3px}.stat span{display:block;font-size:11px;color:var(--muted);margin-top:3px}.clickable{cursor:pointer}
+.progress{height:8px;background:#e7eee8;border-radius:20px;overflow:hidden;margin-top:14px}.progress i{display:block;height:100%;width:0;background:var(--green);border-radius:20px}
+.section{font-weight:900;margin:3px 0 12px}.meal{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 0;border-top:1px solid #edf1ed}.meal:first-of-type{border-top:0}.meal strong{display:block}.meal small{display:block;color:var(--muted);margin-top:4px;max-width:280px}
+.primary,.ghost{border-radius:13px;padding:10px 14px;font-weight:850;border:0}.primary{background:var(--green);color:#fff}.ghost{background:#f3f7f3;border:1px solid #dce5dd;color:#425247}
+.full{width:100%}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}.waterbtn{min-height:48px}
+.feedback{background:linear-gradient(145deg,#eef6ef,#fff);border-color:#d7e5d9}.feedback h2{font-size:19px}
+.pillrow{display:flex;gap:7px;flex-wrap:wrap}.pill{border:1px solid #dce5dd;background:#f7faf7;border-radius:999px;padding:8px 11px;font-size:12px}.pill.sel{background:var(--green2);border-color:#78947f;font-weight:800}
+.weekday{border:1px solid var(--line);border-radius:17px;padding:13px;margin:9px 0;background:#fbfdfb}.weekday strong{font-size:14px}.choice{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 0;border-top:1px solid #edf1ed;font-size:12px}.choice:first-of-type{margin-top:6px}
+.check{display:flex;align-items:center;gap:8px;padding:7px 0;font-size:13px}.check input{accent-color:var(--green)}
+.foods{display:grid;grid-template-columns:1fr 1fr;gap:8px}.food{border:1px solid #dce5dd;background:#f7faf7;border-radius:13px;padding:11px;text-align:left}.food.sel{background:#deece0;border-color:#6b8973;font-weight:900}
+.empty{background:#f5f8f5;border-radius:13px;padding:12px;color:var(--muted);font-size:12px}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.kpi{background:#f6f9f6;border-radius:14px;padding:11px;text-align:center}.kpi b{display:block;font-size:17px}.kpi span{font-size:10px;color:var(--muted)}
+.bottom{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);padding:9px;z-index:10}.bottomin{max-width:560px;margin:auto;display:grid;grid-template-columns:repeat(4,1fr)}.bottom button{border:0;background:none;color:#7a857e;font-size:11px;padding:6px}.bottom button.active{color:#38523f;font-weight:900}
+.modal{display:none;position:fixed;inset:0;background:#17231a88;z-index:30;padding:14px}.modal.show{display:flex;align-items:flex-end}.modalbox{background:#fff;width:100%;max-width:560px;margin:auto;border-radius:24px 24px 0 0;padding:18px;max-height:90vh;overflow:auto}.modalhead{display:flex;justify-content:space-between;align-items:center}.close{border:0;background:none;font-size:28px}.row{display:flex;gap:8px;margin:11px 0}.row>*{flex:1;padding:11px;border:1px solid #dce4dd;border-radius:11px}.category{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.category button{border:1px solid #dce5dd;background:#f7faf7;border-radius:13px;padding:11px;font-weight:800;color:#405247}
+.print-report{display:none}
+@media print{body *{visibility:hidden!important}#printReport,#printReport *{visibility:visible!important}#printReport{display:block!important;position:absolute;left:0;top:0;width:100%;padding:30px;background:#fff;color:#26332b}.app,.bottom,.modal{display:none!important}.print-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.print-summary div{border:1px solid #ddd;padding:10px;text-align:center}.print-summary b{display:block;font-size:20px}.print-meal{padding:10px 0;border-bottom:1px solid #ddd}}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+<div class="brand"><span>🌱</span> UM DIA DE CADA VEZ • V8</div>
+<h1>Bom dia, Gabriela ❤️</h1>
+<div class="tagline">Hoje não precisa ser perfeito. Vamos cuidar de um dia por vez.</div>
+</header>
+
+<nav class="topnav">
+<button id="tHoje" class="active" onclick="go('hoje')">🏠 Hoje</button>
+<button id="tSemana" onclick="go('semana')">🗓️ Semana</button>
+<button id="tRegistrar" onclick="go('registrar')">🍽️ Registrar</button>
+<button id="tEvol" onclick="go('evol')">📈 Evolução</button>
+</nav>
+
+<section id="hoje" class="page active">
+<div class="card">
+<h2>Seu dia 🌿</h2><div class="muted" id="date"></div>
+<div class="stats">
+<div class="stat">🔥<b id="kcal">0</b><span>kcal registradas</span></div>
+<div class="stat">💪<b id="protein">0 g</b><span>proteína registrada</span></div>
+<div class="stat clickable" onclick="openWater()">💧<b id="water">0/8</b><span>água • tocar para editar</span></div>
+<div class="stat clickable" onclick="openBike()">🚲<b id="bike">0 min</b><span>bicicleta • tocar para editar</span></div>
+</div>
+<div class="progress"><i id="dailyProgress"></i></div>
+<div class="muted" style="margin-top:7px">Progresso do cuidado de hoje</div>
+</div>
+
+<div class="card">
+<div class="section">🍽️ Refeições de hoje</div>
+<div id="mealRows"></div>
+</div>
+
+<div class="card feedback">
+<h2>💬 Como você está?</h2>
+<div class="muted">Seu humor também faz parte do seu dia.</div>
+<div class="pillrow" style="margin-top:11px" id="moods"></div>
+<div id="dailyFeedback" class="empty" style="margin-top:13px;background:#f7fbf7;border:1px solid #dce8de"></div>
+</div>
+
+<div class="card">
+<div class="section">🌱 Uma coisa boa que fiz por mim</div>
+<input id="selfcare" placeholder="Ex.: tomei um tempo para mim..." style="width:100%;padding:12px;border:1px solid #dce4dd;border-radius:11px">
+<button class="primary full" style="margin-top:9px" onclick="saveSelfcare()">Salvar</button>
+</div>
+
+<div class="card">
+<div class="section">📄 Fechamento do dia</div>
+<div class="muted">Quando terminar, gere um PDF com o que realmente aconteceu.</div>
+<button class="primary full" style="margin-top:11px" onclick="exportPDF()">📄 Exportar meu dia em PDF</button>
+</div>
+</section>
+
+<section id="semana" class="page">
+<div class="card"><h2>🗓️ Monte sua semana</h2><div class="muted">Você decide. Primeiro marque o que encontrou ou quer comprar; depois monte suas refeições.</div></div>
+<div class="card">
+<div class="section">🛒 Minha lista</div><div class="muted">Marque o que está disponível para você nesta semana.</div>
+<div id="shopping" style="margin-top:8px"></div>
+<button class="ghost full" onclick="addFood()" style="margin-top:8px">＋ Adicionar outro alimento</button>
+</div>
+<div class="card"><div class="section">🍽️ Meu planejamento</div><div id="weekPlan"></div></div>
+</section>
+
+<section id="registrar" class="page">
+<div class="card">
+<h2>🍽️ O que realmente aconteceu?</h2>
+<div class="muted">O planejamento é uma intenção. Aqui você registra a vida real, sem culpa.</div>
+<div class="row"><select id="mealSelect" onchange="renderRegister()"><option>Café da manhã</option><option>Almoço</option><option>Lanche</option><option>Jantar</option></select></div>
+<div class="section">📋 Você planejou</div><div id="planned" class="empty"></div>
+<div class="grid2" style="margin-top:11px">
+<button class="primary" onclick="atePlanned()">✓ Comi isso</button>
+<button class="ghost" onclick="didNotEat()">Não comi</button>
+</div>
+<button class="ghost full" style="margin-top:8px" onclick="otherFood()">🍽️ Comi outra coisa</button>
+</div>
+<div class="card" id="otherCard" style="display:none">
+<div class="section">🍴 O que você realmente comeu?</div><div class="muted">Marque quantos alimentos quiser e informe a quantidade em gramas.</div>
+<div class="category">
+<button onclick="foodCat('Grãos e carboidratos')">🍚 Grãos</button>
+<button onclick="foodCat('Proteínas')">🍗 Proteínas</button>
+<button onclick="foodCat('Verduras e legumes')">🥕 Verduras</button>
+<button onclick="foodCat('Frutas')">🍎 Frutas</button>
+<button onclick="foodCat('Laticínios e outros')">🥛 Outros</button>
+</div>
+<div id="actualFoods"></div>
+<div id="actualQuantities" style="margin-top:10px"></div>
+<button class="primary full" style="margin-top:11px" onclick="saveActual()">✓ Salvar o que comi</button>
+</div>
+<div class="card"><div class="section">📊 Hoje até agora</div><div id="actualToday"></div></div>
+</section>
+
+<section id="evol" class="page">
+<div class="card"><h2>📈 Minha evolução</h2><div class="muted">Acompanhe tendência e constância, não perfeição.</div>
+<div class="stats"><div class="stat">⚖️<b id="weightNow">90.0</b><span>kg atual</span></div><div class="stat">💧<b id="waterAvg">0</b><span>copos hoje</span></div><div class="stat">🚲<b id="bikeNow">0</b><span>min hoje</span></div><div class="stat">🍽️<b id="mealsDone">0/4</b><span>refeições</span></div></div>
+</div>
+<div class="card"><div class="section">🏆 Pequenas conquistas</div><div id="badges" class="empty"></div></div>
+<div class="card"><div class="section">📊 Resumo de hoje</div><div id="evoSummary"></div></div>
+</section>
+</div>
+
+<div class="bottom"><div class="bottomin">
+<button id="bHoje" class="active" onclick="go('hoje')">🏠<br>Hoje</button>
+<button id="bSemana" onclick="go('semana')">🗓️<br>Semana</button>
+<button id="bRegistrar" onclick="go('registrar')">🍽️<br>Registrar</button>
+<button id="bEvol" onclick="go('evol')">📈<br>Evolução</button>
+</div></div>
+
+<div class="modal" id="waterModal"><div class="modalbox">
+<div class="modalhead"><h2>💧 Água</h2><button class="close" onclick="closeWater()">×</button></div>
+<div class="muted">Quantos copos você tomou hoje?</div>
+<div class="row"><input id="waterInput" type="number" min="0" max="8" value="0"><span style="display:flex;align-items:center">copos</span></div>
+<button class="primary full" onclick="saveWater()">Salvar</button>
+</div></div>
+
+<div class="modal" id="bikeModal"><div class="modalbox">
+<div class="modalhead"><h2>🚲 Bicicleta</h2><button class="close" onclick="closeBike()">×</button></div>
+<div class="muted">Registre ou altere os minutos feitos hoje.</div>
+<div class="row"><input id="bikeInput" type="number" min="0" value="0"><span style="display:flex;align-items:center">minutos</span></div>
+<button class="primary full" onclick="saveBike()">Salvar</button><button class="ghost full" style="margin-top:8px" onclick="clearBike()">Apagar registro</button>
+</div></div>
+
+<div class="modal" id="planModal"><div class="modalbox">
+<div class="modalhead"><h2 id="planTitle">Escolher</h2><button class="close" onclick="closePlan()">×</button></div>
+<div class="muted">Escolha um alimento que você marcou na sua lista.</div>
+<div id="planOptions" class="foods" style="margin-top:12px"></div>
+</div></div>
+
+<div id="printReport" class="print-report">
+<h1>Um Dia de Cada Vez 🌱</h1><h2 id="pDate"></h2>
+<div class="print-summary"><div><b id="pKcal">0</b><span>kcal</span></div><div><b id="pProt">0 g</b><span>proteína</span></div><div><b id="pWater">0/8</b><span>água</span></div><div><b id="pBike">0 min</b><span>bicicleta</span></div></div>
+<h3>🍽️ Refeições</h3><div id="pMeals"></div><h3>💬 Como foi meu dia</h3><p id="pMood"></p><p id="pSelf"></p>
+</div>
+
+<script>
+const foods={
+"Grãos e carboidratos":[["Arroz",130,2.7],["Lentilha",116,9],["Feijão",76,4.8],["Grão-de-bico",164,8.9],["Aveia",389,16.9],["Pão",265,9],["Massa",158,5.8],["Batata",77,2],["Batata-doce",86,1.6],["Mandioca",125,1.4],["Macarrão",158,5.8]],
+"Proteínas":[["Frango",165,31],["Carne bovina",200,26],["Peixe",130,26],["Ovo",70,6.3],["Atum",132,29],["Sardinha",208,24.6],["Queijo",90,6],["Iogurte",80,4]],
+"Verduras e legumes":[["Cenoura",41,.9],["Couve",32,2.9],["Brócolis",35,2.4],["Abóbora",40,1],["Beterraba",43,1.6],["Abobrinha",17,1.2],["Chuchu",19,.7],["Tomate",18,.9],["Alface",15,1.4],["Rúcula",25,2.6],["Pepino",15,.7],["Repolho",25,1.3]],
+"Frutas":[["Banana",89,1.1],["Maçã",52,.3],["Mamão",43,.5],["Laranja",47,.9],["Morango",32,.7],["Melão",34,.8],["Abacate",160,2]],
+"Laticínios e outros":[["Leite zero lactose",50,3.3],["Café",2,.1],["Azeite",884,0]]
+};
+const meals=["Café da manhã","Almoço","Lanche","Jantar"], days=["Segunda","Terça","Quarta","Quinta","Sexta","Sábado","Domingo"];
+let planDay=0,planMeal="",actualSelected=[];
+
+function key(){return new Date().toISOString().slice(0,10)}
+function get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}}
+function set(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function go(id){
+ document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");
+ document.querySelectorAll(".topnav button,.bottom button").forEach(x=>x.classList.remove("active"));
+ document.getElementById("t"+cap(id)).classList.add("active");document.getElementById("b"+cap(id)).classList.add("active");
+ render();window.scrollTo(0,0)
+}
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}
+function data(){return get("udcv7_actual",[]).filter(x=>x.date===key())}
+function plan(){return get("udcv7_plan",{})}
+function shopping(){return get("udcv7_shop",[])}
+function render(){
+ const d=data(), kcal=d.reduce((a,x)=>a+x.kcal,0), prot=d.reduce((a,x)=>a+x.protein,0);
+ document.getElementById("kcal").textContent=Math.round(kcal);document.getElementById("protein").textContent=prot.toFixed(1)+" g";
+ document.getElementById("water").textContent=get("udcv7_water",0)+"/8";document.getElementById("bike").textContent=get("udcv7_bike",0)+" min";
+ document.getElementById("dailyProgress").style.width=Math.min(100,kcal/1600*100)+"%";
+ renderMeals();renderWeek();renderRegister();renderEvol();renderMood();renderDailyFeedback()
+}
+function renderMeals(){
+ const a=data();document.getElementById("mealRows").innerHTML=meals.map(m=>{
+  const x=a.filter(i=>i.meal===m);return `<div class="meal"><div><strong>${icon(m)} ${m}</strong><small>${x.length?x.map(i=>i.name).join(", "):"Ainda não registrado"}</small></div><button class="primary" onclick="goRegister('${m}')">Registrar</button></div>`
+ }).join("")
+}
+function icon(m){return {"Café da manhã":"☀️","Almoço":"🍛","Lanche":"🍎","Jantar":"🌙"}[m]}
+function goRegister(m){go("registrar");document.getElementById("mealSelect").value=m;renderRegister()}
+function renderDailyFeedback(){
+ const d=data(), water=Number(get("udcv7_water",0)), bike=Number(get("udcv7_bike",0)), mood=get("udcv7_mood","");
+ const done=new Set(d.map(x=>x.meal)).size;
+ const skipped=d.filter(x=>x.status==="nao_comeu").length;
+ const changed=d.filter(x=>x.status==="outra_coisa").length;
+ const self=(get("udcv7_self","")||"").trim();
+ let parts=[];
+ if(done===0) parts.push("Hoje ainda não há refeições registradas. Se puder, comece pelo próximo momento de alimentação, sem tentar compensar o que passou.");
+ else if(done<4) parts.push(`Você registrou ${done} de 4 refeições até agora. O que importa é continuar a partir da próxima refeição.`);
+ else parts.push("Você registrou as 4 refeições do dia. Isso mostra presença e organização, mesmo que o dia não tenha saído exatamente como planejado.");
+ if(skipped) parts.push(`Você marcou ${skipped} refeição${skipped>1?'ões':''} como não realizada${skipped>1?'s':''}. Isso também é informação para entender sua rotina, não um motivo para se culpar.`);
+ if(changed) parts.push(`Em ${changed} refeição${changed>1?'ões':''}, você registrou o que realmente comeu em vez do planejado. Isso é exatamente o objetivo: registrar a vida real.`);
+ if(water>=8) parts.push("Você completou sua meta de água de hoje. 💧");
+ else if(water>0) parts.push(`Você chegou a ${water}/8 copos de água. Se quiser, ainda pode completar mais um pouco ao longo do dia.`);
+ else parts.push("A água ainda não foi registrada hoje. Um copo agora já é um começo.");
+ if(bike>0) parts.push(`Você fez ${bike} min de bicicleta. 🚲 Movimento feito conta, mesmo quando parece pouco.`);
+ else parts.push("A bicicleta ainda não foi registrada hoje. Se fizer sentido para você, alguns minutos já podem contar como cuidado.");
+ if(mood) parts.push(`Seu humor registrado foi “${mood.toLowerCase()}”. Perceber como você está também faz parte do cuidado.`);
+ if(self) parts.push("Você também registrou um cuidado com você. 🌱");
+ let intro="";
+ if(done>=3 && water>=6 && bike>0) intro="Seu dia teve vários sinais de cuidado. Não precisa ser perfeito para ser um bom dia. 💚";
+ else if(done>=2 || water>=3 || bike>0 || self) intro="Você já fez algumas coisas por você hoje. O objetivo não é acertar tudo; é continuar se cuidando, um passo de cada vez. 💚";
+ else intro="Hoje pode começar pequeno. Escolha apenas o próximo cuidado possível. 💚";
+ document.getElementById("dailyFeedback").innerHTML=`<strong>${intro}</strong><div style="margin-top:8px">${parts.join("<br><br>")}</div>`;
+}
+
+function renderMood(){
+ const moods=["Tranquila","Ansiosa","Cansada","Triste","Animada"],cur=get("udcv7_mood","");
+ document.getElementById("moods").innerHTML=moods.map(x=>`<button class="pill ${x===cur?"sel":""}" onclick="setMood('${x}')">${x}</button>`).join("");
+ document.getElementById("selfcare").value=get("udcv7_self","")
+}
+function setMood(x){set("udcv7_mood",x);renderMood()}
+function saveSelfcare(){localStorage.setItem("udcv7_self",document.getElementById("selfcare").value);alert("Salvo 💚")}
+function openWater(){document.getElementById("waterInput").value=get("udcv7_water",0);document.getElementById("waterModal").classList.add("show")}
+function closeWater(){document.getElementById("waterModal").classList.remove("show")}
+function saveWater(){set("udcv7_water",Math.max(0,Math.min(8,Number(document.getElementById("waterInput").value)||0)));closeWater();render()}
+function openBike(){document.getElementById("bikeInput").value=get("udcv7_bike",0);document.getElementById("bikeModal").classList.add("show")}
+function closeBike(){document.getElementById("bikeModal").classList.remove("show")}
+function saveBike(){set("udcv7_bike",Math.max(0,Number(document.getElementById("bikeInput").value)||0));closeBike();render()}
+function clearBike(){localStorage.removeItem("udcv7_bike");closeBike();render()}
+function renderWeek(){
+ const custom=get("udcv7_custom",[]), all=[...new Set(Object.values(foods).flat().map(x=>x[0]).concat(custom))], chosen=shopping();
+ document.getElementById("shopping").innerHTML=all.map(n=>`<label class="check"><input type="checkbox" ${chosen.includes(n)?"checked":""} onchange="toggleShop('${esc(n)}',this.checked)"> ${n}</label>`).join("");
+ const p=plan();document.getElementById("weekPlan").innerHTML=days.map((d,di)=>`<div class="weekday"><strong>${d}</strong>`+meals.map(m=>{let v=p[di+"_"+m]||"Ainda não escolhido";return `<div class="choice"><span>${icon(m)} ${v}</span><button class="ghost" onclick="openPlan(${di},'${m}')">${v==="Ainda não escolhido"?"Escolher":"Trocar"}</button></div>`}).join("")+"</div>").join("")
+}
+function esc(s){return String(s).replace(/'/g,"\\'")}
+function toggleShop(n,on){let a=shopping();if(on&&!a.includes(n))a.push(n);if(!on)a=a.filter(x=>x!==n);set("udcv7_shop",a);renderWeek()}
+function addFood(){let n=prompt("Qual alimento você quer acrescentar?");if(!n)return;let c=get("udcv7_custom",[]);if(!c.includes(n.trim()))c.push(n.trim());set("udcv7_custom",c);let a=shopping();if(!a.includes(n.trim()))a.push(n.trim());set("udcv7_shop",a);renderWeek()}
+function openPlan(di,m){planDay=di;planMeal=m;document.getElementById("planTitle").textContent=days[di]+" — "+m;let a=shopping();document.getElementById("planOptions").innerHTML=a.length?a.map(n=>`<button class="food" onclick="choosePlan('${esc(n)}')">${n}</button>`).join(""):'<div class="empty" style="grid-column:1/-1">Marque alimentos na lista primeiro.</div>';document.getElementById("planModal").classList.add("show")}
+function choosePlan(n){let p=plan();p[planDay+"_"+planMeal]=n;set("udcv7_plan",p);closePlan();renderWeek()}
+function closePlan(){document.getElementById("planModal").classList.remove("show")}
+function renderRegister(){
+ const m=document.getElementById("mealSelect").value,p=plan(),di=(new Date().getDay()+6)%7,v=p[di+"_"+m]||"";
+ document.getElementById("planned").textContent=v||"Você ainda não planejou esta refeição na aba Semana.";
+ document.getElementById("actualToday").innerHTML=data().length?data().map(x=>`<div class="choice"><span>${icon(x.meal)} ${x.meal}: <b>${x.name}</b>${x.grams?`<br><small>${x.grams} g</small>`:""}</span><span>${x.kcal?Math.round(x.kcal)+" kcal":""}</span></div>`).join(""):'<div class="empty">Nenhuma refeição registrada hoje.</div>'
+}
+function findFood(name){
+  for(const cat of Object.keys(foods)){
+    const f=foods[cat].find(x=>x[0].toLowerCase()===String(name).toLowerCase());
+    if(f)return f;
+  }
+  return null;
+}
+function askGrams(name){
+  const v=prompt(`Quantos gramas de ${name} você comeu?`, "100");
+  if(v===null)return null;
+  const g=Math.max(1,Number(String(v).replace(",","."))||0);
+  if(!g){alert("Digite uma quantidade válida em gramas.");return null;}
+  return g;
+}
+function atePlanned(){
+  let m=document.getElementById("mealSelect").value,p=plan(),di=(new Date().getDay()+6)%7,n=p[di+"_"+m];
+  if(!n){alert("Você ainda não planejou essa refeição.");return}
+  const g=askGrams(n); if(g===null)return;
+  const f=findFood(n);
+  replaceMeal([{name:n,grams:g,kcal:f?f[1]*g/100:0,protein:f?f[2]*g/100:0,status:"planejado"}])
+}
+function didNotEat(){replaceMeal([{name:"Não comi",grams:0,kcal:0,protein:0,status:"nao_comeu"}])}
+function otherFood(){
+  document.getElementById("otherCard").style.display="block";
+  foodCat("Grãos e carboidratos");
+  renderActualQuantities();
+}
+function foodCat(cat){
+  document.getElementById("actualFoods").innerHTML=`<div class="foods">${foods[cat].map((f,i)=>`<button class="food ${actualSelected.some(x=>x[0]===f[0])?"sel":""}" id="f${cat}${i}" onclick="toggleActual('${esc(cat)}',${i})">${f[0]}</button>`).join("")}</div>`;
+  renderActualQuantities();
+}
+function toggleActual(cat,i){
+  let f=foods[cat][i],idx=actualSelected.findIndex(x=>x[0]===f[0]);
+  if(idx<0){
+    actualSelected.push([f[0],f[1],f[2],100]);
+  }else{
+    actualSelected.splice(idx,1);
+  }
+  renderActualQuantities();
+}
+function renderActualQuantities(){
+  const box=document.getElementById("actualQuantities");
+  if(!box)return;
+  if(!actualSelected.length){
+    box.innerHTML='<div class="muted">Depois de escolher os alimentos, informe quantos gramas comeu de cada um.</div>';
+    return;
+  }
+  box.innerHTML='<div class="section" style="margin-top:6px">⚖️ Quantidade que você comeu</div>'+
+    actualSelected.map((f,i)=>`<div class="choice" style="align-items:center;gap:10px">
+      <span><b>${f[0]}</b><br><small>${f[1]} kcal / 100 g • ${f[2]} g proteína / 100 g</small></span>
+      <label style="display:flex;align-items:center;gap:5px;white-space:nowrap"><input type="number" min="1" step="1" value="${f[3]}" onchange="setActualGrams(${i},this.value)" style="width:82px;padding:10px;border:1px solid #dbe4df;border-radius:12px"> g</label>
+    </div>`).join("");
+}
+function setActualGrams(i,v){actualSelected[i][3]=Math.max(1,Number(String(v).replace(",","."))||1);}
+function saveActual(){
+  if(!actualSelected.length){alert("Marque pelo menos um alimento.");return}
+  replaceMeal(actualSelected.map(f=>({
+    name:f[0],grams:f[3],kcal:f[1]*f[3]/100,protein:f[2]*f[3]/100,status:"outra_coisa"
+  })));
+  actualSelected=[];
+  document.getElementById("otherCard").style.display="none";
+}
+function replaceMeal(items){
+  let m=document.getElementById("mealSelect").value,a=get("udcv7_actual",[]).filter(x=>!(x.date===key()&&x.meal===m));
+  items.forEach(x=>a.push({...x,date:key(),meal:m}));
+  set("udcv7_actual",a);render()
+}
+function renderEvol(){
+ const d=data(), mealsDone=new Set(d.map(x=>x.meal)).size;
+ document.getElementById("weightNow").textContent=get("udcv7_weight",90).toFixed?get("udcv7_weight",90).toFixed(1):"90.0";
+ document.getElementById("waterAvg").textContent=get("udcv7_water",0);document.getElementById("bikeNow").textContent=get("udcv7_bike",0);document.getElementById("mealsDone").textContent=mealsDone+"/4";
+ document.getElementById("badges").textContent=mealsDone===4?"🎉 Você registrou as 4 refeições de hoje!":"Cada registro conta. Continue construindo seu dia.";
+ document.getElementById("evoSummary").innerHTML=`<div class="kpis"><div class="kpi"><b>${d.reduce((a,x)=>a+x.kcal,0)}</b><span>kcal</span></div><div class="kpi"><b>${get("udcv7_water",0)}</b><span>copos</span></div><div class="kpi"><b>${get("udcv7_bike",0)}</b><span>min</span></div></div>`
+}
+function exportPDF(){
+ const d=data(),k=d.reduce((a,x)=>a+x.kcal,0),p=d.reduce((a,x)=>a+x.protein,0);
+ document.getElementById("pDate").textContent=new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+ document.getElementById("pKcal").textContent=Math.round(k);document.getElementById("pProt").textContent=p.toFixed(1)+" g";document.getElementById("pWater").textContent=get("udcv7_water",0)+"/8";document.getElementById("pBike").textContent=get("udcv7_bike",0)+" min";
+ document.getElementById("pMeals").innerHTML=meals.map(m=>`<div class="print-meal"><b>${m}</b><br>${d.filter(x=>x.meal===m).map(x=>`${x.name}${x.grams?` — ${x.grams} g`:""}${x.kcal?` — ${Math.round(x.kcal)} kcal`:""}`).join("<br>")||"Não registrado"}</div>`).join("");
+ document.getElementById("pMood").textContent="Humor: "+(get("udcv7_mood","Não informado"));
+ document.getElementById("pSelf").textContent="Uma coisa que fiz por mim: "+(get("udcv7_self","Não registrado")||"Não registrado");
+ window.print()
+}
+document.getElementById("date").textContent=new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"});
+render();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+}
+</script></body></html>

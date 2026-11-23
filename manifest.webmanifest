@@ -1,0 +1,11 @@
+{
+  "name": "Um Dia de Cada Vez",
+  "short_name": "Um Dia de Cada Vez",
+  "description": "Um acompanhamento diário de alimentação, água, movimento, humor e autocuidado.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f7f4ef",
+  "theme_color": "#5f8068",
+  "orientation": "portrait",
+  "icons": []
+}
