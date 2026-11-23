@@ -1,8 +1,8 @@
-const CACHE = 'um-dia-de-cada-vez-v10';
+const CACHE = 'um-dia-de-cada-vez-v11';
 const ASSETS = [
   './',
   './index.html',
-  './manifest.webmanifest',
+  './manifest.json',
   './icon-192.png',
   './icon-512.png'
 ];
