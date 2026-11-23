@@ -1,4 +1,4 @@
-const CACHE = 'um-dia-de-cada-vez-v11';
+const CACHE = 'um-dia-de-cada-vez-v22';
 const ASSETS = [
   './',
   './index.html',
